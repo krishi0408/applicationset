@@ -1,23 +1,29 @@
-apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
-metadata:
-  name: cluster-addons
-spec:
-  generators:
-  - git:
-      repoURL: https://github.com/argoproj/applicationset.git
-      revision: HEAD
-      directories:
-      - path: examples/git-generator-directory/cluster-addons/*
-  template:
-    metadata:
-      name: '{{path.basename}}'
-    spec:
-      project: default
-      source:
-        repoURL: https://github.com/argoproj/applicationset.git
-        targetRevision: HEAD
-        path: '{{path}}'
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
+apiVersion: argoproj.io/v1alpha1  
+kind: ApplicationSet  
+metadata:  
+  name: guestbook  
+spec:  
+  generators:  
+    - git:  
+        repoURL: https://github.com/krishi0408/applicationset.git  
+        revision: HEAD  
+        files:  
+        - path: "examples/git-generator-files-discovery/cluster-config/**/config.json"  
+  template:  
+    metadata:  
+      name: '{{cluster.name}}-guestbook'
+      labels: 
+        harness.io/envRef: '{{envTag}}'
+        harness.io/serviceRef: '{{serviceTag}}'
+        harness.io/buildRef: '{{releaseTag}}'
+    spec:  
+      project: b1267431
+      source:  
+        repoURL: https://github.com/krishi0408/applicationset.git  
+        targetRevision: HEAD  
+        path: "examples/git-generator-files-discovery/apps/guestbook"  
+      destination:  
+        server: '{{cluster.address}}'  
+        namespace: default  
+      syncPolicy:  
+        automated: {}
